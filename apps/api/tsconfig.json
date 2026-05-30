@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "#application/*": ["src/application/*"],
+      "#middleware/*": ["src/middleware/*"],
+      "#modules/*": ["src/modules/*"],
+      "#shared/*": ["src/shared/*"],
+      "#data/*": ["src/data/*"],
+      "#services/*": ["src/services/*"]
+    }
+  },
+  "include": ["src"]
+}

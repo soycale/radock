@@ -1,0 +1,40 @@
+{
+  "name": "@radock/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit",
+    "data:generate": "kysely-codegen --out-file src/data/db.ts --camel-case --url $DATABASE_URL",
+    "migrate": "node --import tsx/esm tools/migrate/migrate.ts"
+  },
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.1.0",
+    "@radock/types": "workspace:*",
+    "firebase-admin": "^13.4.0",
+    "finnhub": "^1.2.19",
+    "koa": "^2.16.1",
+    "koa-body": "^6.0.1",
+    "kysely": "^0.27.6",
+    "pg": "^8.16.0",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
+    "socket.io": "^4.8.1",
+    "zod": "^3.25.47"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.15.0",
+    "@types/koa__cors": "^5.0.0",
+    "@types/koa__router": "^12.0.4",
+    "@types/node": "^22.15.29",
+    "@types/pg": "^8.11.14",
+    "kysely-codegen": "^0.18.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2"
+  }
+}

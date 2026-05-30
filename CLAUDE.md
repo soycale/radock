@@ -201,7 +201,7 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:xxx:web:xxx
 Update this file as tasks are completed.
 
 ### Phase 1 — Foundation
-- [ ] **1.1** Monorepo scaffold
+- [x] **1.1** Monorepo scaffold
 - [ ] **1.2** API: Koa server skeleton
 - [ ] **1.3** API: Firebase Auth middleware
 - [ ] **1.4** Mobile: Expo skeleton
