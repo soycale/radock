@@ -79,19 +79,31 @@ assets/
   splash.png               → 1284×2778
 ```
 
+## Design Style
+The app follows a **TikTok-inspired design language**:
+- Pure black backgrounds, high contrast white text
+- Bold, chunky typography with strong visual hierarchy
+- Vibrant dual-accent system: hot pink (`#FE2C55`) + cyan (`#25F4EE`)
+- Minimal borders, generous spacing, full-screen layouts
+- Bottom tab navigation, cards with subtle depth
+- No gradients on backgrounds — flat, clean surfaces
+
+Apply this style to every new screen and component. When in doubt, look at TikTok's UI for reference.
+
 ## Color Tokens
 Defined in `tailwind.config.js` under `theme.extend.colors.rd`:
 
 ```javascript
 rd: {
-  bg:      '#0F172A',  // slate-900  — app background (dark)
-  surface: '#1E293B',  // slate-800  — cards, inputs, sheet backgrounds
-  border:  '#334155',  // slate-700  — input borders, dividers
-  primary: '#6366F1',  // indigo-500 — primary buttons, active states, chart line
-  success: '#10B981',  // emerald-500 — price up, positive % change
-  danger:  '#EF4444',  // red-500    — price down, negative % change, errors
-  text:    '#F8FAFC',  // slate-50   — primary text
-  muted:   '#94A3B8',  // slate-400  — secondary text, placeholders, hints
+  bg:        '#000000',  // pure black — app background
+  surface:   '#161616',  // very dark gray — cards, inputs, sheets
+  border:    '#2A2A2A',  // subtle dark border
+  primary:   '#FE2C55',  // TikTok pink/red — primary actions, active states
+  secondary: '#25F4EE',  // TikTok cyan — highlights, success states
+  success:   '#25F4EE',  // cyan — price up, positive % change
+  danger:    '#FE2C55',  // pink/red — price down, negative change, errors
+  text:      '#FFFFFF',  // pure white — primary text
+  muted:     '#8A8A8A',  // gray — secondary text, placeholders, hints
 }
 ```
 
