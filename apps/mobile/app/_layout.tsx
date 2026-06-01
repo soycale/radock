@@ -20,7 +20,7 @@ export default function RootLayout() {
     SplashScreen.hideAsync()
     if (token) {
       setAuthToken(token)
-      router.replace('/(app)')
+      router.replace('/(app)/(tabs)')
     } else {
       router.replace('/(auth)/login')
     }
