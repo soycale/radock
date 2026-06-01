@@ -45,6 +45,7 @@ export default function StockDetailScreen() {
   }, [symbol, range])
 
   const closes = candles.map((c) => c.close)
+  const timestamps = candles.map((c) => c.time)
   const firstClose = closes[0] ?? 0
   const lastClose = closes[closes.length - 1] ?? 0
   const changePercent = firstClose !== 0 ? ((lastClose - firstClose) / firstClose) * 100 : 0
@@ -97,7 +98,7 @@ export default function StockDetailScreen() {
             <Text className="text-rd-muted text-sm">No data available</Text>
           </View>
         ) : (
-          <LineChart data={closes} width={width - 64} height={200} />
+          <LineChart data={closes} timestamps={timestamps} width={width - 64} height={200} />
         )}
       </View>
 
