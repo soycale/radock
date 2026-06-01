@@ -33,12 +33,15 @@ candlesRouter.get('/candles/:symbol', async (ctx: Context) => {
 
   const url = `${FINNHUB_BASE}/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${configuration.finnhub.apiKey}`
   const res = await fetch(url)
-  const data = (await res.json()) as FinnhubCandles
+  const raw = (await res.json()) as FinnhubCandles | { error: string }
 
-  if (data.s === 'no_data') {
+  // Finnhub returns { error: '...' } for endpoints not available on free plan
+  if (!res.ok || 'error' in raw || raw.s === 'no_data') {
     ctx.body = { data: { symbol, candles: [] }, success: true }
     return
   }
+
+  const data = raw as FinnhubCandles
 
   const candles: CandleDto[] = data.t.map((time, i) => ({
     time,
