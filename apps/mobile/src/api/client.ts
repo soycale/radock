@@ -3,9 +3,14 @@ import { firebaseAuth } from '@/lib/firebase'
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL
 
 let authToken: string | null = null
+let onUnauthorized: (() => void) | null = null
 
 export function setAuthToken(token: string | null) {
   authToken = token
+}
+
+export function setOnUnauthorized(callback: () => void) {
+  onUnauthorized = callback
 }
 
 async function refreshFirebaseToken(): Promise<string | null> {
@@ -39,6 +44,15 @@ async function request<T>(method: string, path: string, body?: unknown, isRetry 
   if (response.status === 401 && !isRetry) {
     const newToken = await refreshFirebaseToken()
     if (newToken) return request<T>(method, path, body, true)
+    // Refresh failed — log out silently, navigation takes over
+    onUnauthorized?.()
+    return new Promise<T>(() => {})
+  }
+
+  if (response.status === 401 && isRetry) {
+    // Even after refresh the token was rejected — log out silently
+    onUnauthorized?.()
+    return new Promise<T>(() => {})
   }
 
   if (!response.ok) {

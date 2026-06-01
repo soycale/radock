@@ -5,7 +5,7 @@ import * as Notifications from 'expo-notifications'
 import { useEffect } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { useAuthStore } from '@/stores/auth.store'
-import { setAuthToken } from '@/api/client'
+import { setAuthToken, setOnUnauthorized } from '@/api/client'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -20,11 +20,15 @@ Notifications.setNotificationHandler({
 })
 
 export default function RootLayout() {
-  const { token, isHydrated, hydrate } = useAuthStore()
+  const { token, isHydrated, hydrate, logout } = useAuthStore()
 
   useEffect(() => {
     hydrate()
     Notifications.requestPermissionsAsync()
+    setOnUnauthorized(() => {
+      logout()
+      router.replace('/(auth)/login')
+    })
   }, [])
 
   useEffect(() => {
