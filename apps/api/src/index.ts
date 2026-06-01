@@ -11,15 +11,21 @@ const logger = pino({ transport: { target: 'pino-pretty' } })
 
 const app = createServer()
 
-const { router: alertsRouter } = setupAlerts(db)
+const alertsSetup = setupAlerts(db)
+const { router: alertsRouter } = alertsSetup
 
 app.use(healthRouter.routes())
 app.use(healthRouter.allowedMethods())
 app.use(alertsRouter.routes())
 app.use(alertsRouter.allowedMethods())
 
+await alertsSetup.evaluator.loadCache()
+
 finnhubService.connect()
-finnhubService.on('price', (event) => socketService.broadcastPrice(event))
+finnhubService.on('price', (event) => {
+  socketService.broadcastPrice(event)
+  alertsSetup.evaluator.evaluate(event.symbol, event.price)
+})
 
 const httpServer = app.listen(configuration.port, () => {
   logger.info(`Server running on port ${configuration.port}`)
