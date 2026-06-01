@@ -8,15 +8,15 @@
     "build": "tsc",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
-    "data:generate": "kysely-codegen --out-file src/data/db.ts --camel-case --url $DATABASE_URL",
-    "migrate": "node --import tsx/esm tools/migrate/migrate.ts"
+    "data:generate": "sh -c 'set -a; . ./.env; set +a; kysely-codegen --out-file src/data/db.ts --camel-case --dialect postgres --url \"$DATABASE_URL\"'",
+    "migrate": "node --env-file=.env --import tsx/esm tools/migrate/migrate.ts"
   },
   "dependencies": {
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "@radock/types": "workspace:*",
-    "firebase-admin": "^13.4.0",
     "finnhub": "^1.2.19",
+    "firebase-admin": "^13.4.0",
     "koa": "^2.16.1",
     "koa-body": "^6.0.1",
     "kysely": "^0.27.6",
@@ -40,6 +40,7 @@
     "@types/koa__router": "^12.0.4",
     "@types/node": "^22.15.29",
     "@types/pg": "^8.11.14",
+    "dotenv-cli": "^11.0.0",
     "kysely-codegen": "^0.18.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
