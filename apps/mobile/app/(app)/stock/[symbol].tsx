@@ -12,6 +12,9 @@ type Range = '1W' | '1M' | '3M'
 
 const RANGES: Range[] = ['1W', '1M', '3M']
 
+// Module-level cache — survives navigation, resets on app restart
+const candleCache = new Map<string, CandleDto[]>()
+
 function getRangeBounds(range: Range): { from: number; to: number } {
   const now = Math.floor(Date.now() / 1000)
   const day = 86400
@@ -22,24 +25,33 @@ function getRangeBounds(range: Range): { from: number; to: number } {
 export default function StockDetailScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: StockSymbol }>()
   const { width } = useWindowDimensions()
-  const prices = usePricesStore((s) => s.prices)
+  const price = usePricesStore((s) => s.prices[symbol]?.price ?? null)
 
   const [range, setRange] = useState<Range>('1M')
   const [candles, setCandles] = useState<CandleDto[]>([])
   const [loading, setLoading] = useState(true)
 
-  const liveData = prices[symbol]
-  const price = liveData?.price ?? null
   const companyName = SYMBOL_NAMES[symbol] ?? symbol
 
   useEffect(() => {
+    const cacheKey = `${symbol}_${range}`
+    const cached = candleCache.get(cacheKey)
+    if (cached) {
+      setCandles(cached)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     const { from, to } = getRangeBounds(range)
     api
       .get<ApiResponse<{ symbol: string; candles: CandleDto[] }>>(
         `/candles/${symbol}?resolution=D&from=${from}&to=${to}`,
       )
-      .then((res) => setCandles(res.data.candles))
+      .then((res) => {
+        candleCache.set(cacheKey, res.data.candles)
+        setCandles(res.data.candles)
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [symbol, range])

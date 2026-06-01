@@ -1,15 +1,18 @@
+import { memo } from 'react'
 import { TouchableOpacity, View, Text } from 'react-native'
 import type { StockSymbol } from '@radock/types'
+import { usePricesStore } from '@/stores/prices.store'
 
 interface StockCardProps {
   symbol: StockSymbol
   companyName: string
-  price: number | null
   changePercent: number | null
   onPress: () => void
 }
 
-export function StockCard({ symbol, companyName, price, changePercent, onPress }: StockCardProps) {
+export const StockCard = memo(function StockCard({ symbol, companyName, changePercent, onPress }: StockCardProps) {
+  const price = usePricesStore((s) => s.prices[symbol]?.price ?? null)
+
   const isPositive = changePercent !== null && changePercent >= 0
   const changeColor = changePercent === null ? 'text-rd-muted' : isPositive ? 'text-rd-success' : 'text-rd-danger'
   const arrow = changePercent === null ? '' : isPositive ? '▲' : '▼'
@@ -35,4 +38,4 @@ export function StockCard({ symbol, companyName, price, changePercent, onPress }
       </View>
     </TouchableOpacity>
   )
-}
+})
