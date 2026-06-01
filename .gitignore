@@ -18,6 +18,10 @@ apps/mobile/.expo/
 apps/mobile/android/
 apps/mobile/ios/
 
+# Firebase native config — not committed, managed via EAS Secrets for CI/CD
+apps/mobile/google-services.json
+apps/mobile/GoogleService-Info.plist
+
 # Logs
 *.log
 pnpm-debug.log*
