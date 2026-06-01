@@ -15,7 +15,8 @@ export function createHandlers(service: AlertsService) {
     },
 
     async list(ctx: Context) {
-      const alerts = await service.listAlerts(ctx.state.user.uid)
+      const isActive = ctx.query.active !== 'false'
+      const alerts = await service.listAlerts(ctx.state.user.uid, isActive)
       ctx.body = { data: alerts, success: true }
     },
 

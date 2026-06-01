@@ -17,13 +17,14 @@ export class AlertsRepository {
       .executeTakeFirstOrThrow()
   }
 
-  async findActiveByUser(userId: string) {
+  async findByUser(userId: string, isActive: boolean) {
     return this.db
       .selectFrom('alerts')
       .selectAll()
       .where('userId', '=', userId)
-      .where('isActive', '=', true)
-      .orderBy('createdAt', 'desc')
+      .where('isActive', '=', isActive)
+      .orderBy(isActive ? 'createdAt' : 'triggeredAt', 'desc')
+      .limit(isActive ? 100 : 10)
       .execute()
   }
 

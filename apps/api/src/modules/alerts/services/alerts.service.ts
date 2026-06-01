@@ -22,8 +22,8 @@ export class AlertsService {
     return this.toDto(alert)
   }
 
-  async listAlerts(userId: string): Promise<AlertDto[]> {
-    const alerts = await this.repository.findActiveByUser(userId)
+  async listAlerts(userId: string, isActive: boolean): Promise<AlertDto[]> {
+    const alerts = await this.repository.findByUser(userId, isActive)
     return alerts.map(this.toDto)
   }
 
@@ -41,6 +41,7 @@ export class AlertsService {
     targetPrice: string
     isActive: boolean
     createdAt: Date
+    triggeredAt: Date | null
   }): AlertDto {
     return {
       id: alert.id,
@@ -48,6 +49,7 @@ export class AlertsService {
       targetPrice: Number(alert.targetPrice),
       isActive: alert.isActive,
       createdAt: alert.createdAt.toISOString(),
+      triggeredAt: alert.triggeredAt?.toISOString() ?? null,
     }
   }
 }

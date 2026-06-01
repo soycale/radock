@@ -68,6 +68,7 @@ export interface AlertDto {
   targetPrice: number
   isActive: boolean
   createdAt: string
+  triggeredAt: string | null
 }
 
 export interface CreateAlertDto {
