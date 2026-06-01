@@ -42,46 +42,54 @@ async function fetchFromFinnhub(
   from: string,
   to: string,
 ): Promise<CandleDto[] | null> {
-  const url = `${FINNHUB_BASE}/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${configuration.finnhub.apiKey}`
-  const res = await fetch(url)
-  const raw = (await res.json()) as FinnhubCandles | { error: string }
+  try {
+    const url = `${FINNHUB_BASE}/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${configuration.finnhub.apiKey}`
+    const res = await fetch(url)
+    const raw = (await res.json()) as FinnhubCandles | { error: string }
 
-  if (!res.ok || 'error' in raw || raw.s === 'no_data') return null
+    if (!res.ok || 'error' in raw || raw.s === 'no_data') return null
 
-  return raw.t.map((time, i) => ({
-    time,
-    open: (raw as FinnhubCandles).o[i],
-    high: (raw as FinnhubCandles).h[i],
-    low: (raw as FinnhubCandles).l[i],
-    close: (raw as FinnhubCandles).c[i],
-    volume: (raw as FinnhubCandles).v[i],
-  }))
+    return raw.t.map((time, i) => ({
+      time,
+      open: (raw as FinnhubCandles).o[i],
+      high: (raw as FinnhubCandles).h[i],
+      low: (raw as FinnhubCandles).l[i],
+      close: (raw as FinnhubCandles).c[i],
+      volume: (raw as FinnhubCandles).v[i],
+    }))
+  } catch {
+    return null
+  }
 }
 
 async function fetchFromYahoo(symbol: string, from: string, to: string): Promise<CandleDto[] | null> {
-  const url = `${YAHOO_BASE}/${symbol}?interval=1d&period1=${from}&period2=${to}`
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0' },
-  })
-  if (!res.ok) return null
+  try {
+    const url = `${YAHOO_BASE}/${symbol}?interval=1d&period1=${from}&period2=${to}`
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    })
+    if (!res.ok) return null
 
-  const data = (await res.json()) as YahooChart
-  const result = data.chart.result?.[0]
-  if (!result) return null
+    const data = (await res.json()) as YahooChart
+    const result = data.chart.result?.[0]
+    if (!result) return null
 
-  const { timestamp, indicators } = result
-  const quote = indicators.quote[0]
+    const { timestamp, indicators } = result
+    const quote = indicators.quote[0]
 
-  return timestamp
-    .map((time, i) => ({
-      time,
-      open: quote.open[i],
-      high: quote.high[i],
-      low: quote.low[i],
-      close: quote.close[i],
-      volume: quote.volume[i],
-    }))
-    .filter((c) => c.close != null) // Yahoo sometimes includes null entries
+    return timestamp
+      .map((time, i) => ({
+        time,
+        open: quote.open[i],
+        high: quote.high[i],
+        low: quote.low[i],
+        close: quote.close[i],
+        volume: quote.volume[i],
+      }))
+      .filter((c) => c.close != null) // Yahoo sometimes includes null entries
+  } catch {
+    return null
+  }
 }
 
 export const candlesRouter = new Router()
