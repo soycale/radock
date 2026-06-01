@@ -1,7 +1,12 @@
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import { useSocket } from '@/hooks/useSocket'
+import { useAuthStore } from '@/stores/auth.store'
 
 export default function AppLayout() {
+  const token = useAuthStore((s) => s.token)
+  useSocket(token)
+
   return (
     <Tabs
       screenOptions={{
