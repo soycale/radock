@@ -14,20 +14,22 @@ function AlertRow({ alert, onDelete }: { alert: AlertDto; onDelete: (id: string)
   }
 
   return (
-    <View className="flex-row items-center justify-between bg-rd-surface mx-4 my-1.5 px-4 py-4 rounded-xl">
-      <View>
-        <View className="flex-row items-center gap-x-2">
-          <View className="bg-rd-primary px-2 py-0.5 rounded">
-            <Text className="text-white text-xs font-bold">{alert.symbol}</Text>
+    <View className="flex-row items-center justify-between bg-rd-surface mx-4 my-2 px-4 py-5 rounded-2xl">
+      <View className="flex-1 mr-4">
+        <View className="flex-row items-center gap-x-2 mb-1.5">
+          <View className="bg-rd-primary px-3 py-1 rounded-lg">
+            <Text className="text-white text-sm font-bold">{alert.symbol}</Text>
           </View>
-          <Text className="text-rd-muted text-xs">when price ≥ ${Number(alert.targetPrice).toFixed(2)}</Text>
+          <Text className="text-rd-text text-sm font-semibold">
+            when price ≥ ${Number(alert.targetPrice).toFixed(2)}
+          </Text>
         </View>
-        <Text className="text-rd-muted text-xs mt-1">
-          {new Date(alert.createdAt).toLocaleDateString()}
+        <Text className="text-rd-muted text-xs">
+          Created {new Date(alert.createdAt).toLocaleDateString()}
         </Text>
       </View>
-      <TouchableOpacity onPress={confirmDelete} hitSlop={8}>
-        <Ionicons name="trash-outline" size={18} color="#8A8A8A" />
+      <TouchableOpacity onPress={confirmDelete} hitSlop={12}>
+        <Ionicons name="trash-outline" size={22} color="#8A8A8A" />
       </TouchableOpacity>
     </View>
   )

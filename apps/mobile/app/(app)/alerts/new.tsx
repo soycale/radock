@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -23,6 +23,16 @@ export default function NewAlertScreen() {
   const [targetPrice, setTargetPrice] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const pickerRef = useRef<ScrollView>(null)
+
+  // Scroll to the pre-selected symbol so it's visible without manual scrolling
+  useEffect(() => {
+    if (!paramSymbol) return
+    const idx = TRACKED_SYMBOLS.indexOf(paramSymbol as StockSymbol)
+    if (idx <= 0) return
+    // Each chip is ~100px wide + 8px gap
+    setTimeout(() => pickerRef.current?.scrollTo({ x: idx * 108, animated: false }), 50)
+  }, [])
 
   async function handleSubmit() {
     setError('')
@@ -73,7 +83,7 @@ export default function NewAlertScreen() {
       {/* Symbol picker */}
       <View className="px-4 mb-6">
         <Text className="text-rd-muted text-xs font-semibold tracking-widest uppercase mb-3">Symbol</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView ref={pickerRef} horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-x-2">
             {TRACKED_SYMBOLS.map((s) => {
               const selected = symbol === s
