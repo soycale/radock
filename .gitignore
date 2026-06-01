@@ -18,7 +18,7 @@ apps/mobile/.expo/
 apps/mobile/android/
 apps/mobile/ios/
 
-# Firebase native config — not committed, managed via EAS Secrets for CI/CD
+# Firebase native config — managed via EAS Secrets, never committed
 apps/mobile/google-services.json
 apps/mobile/GoogleService-Info.plist
 
