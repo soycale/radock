@@ -8,9 +8,9 @@ import { api } from '@/api/client'
 import { usePricesStore } from '@/stores/prices.store'
 import { LineChart } from '@/components/ui/LineChart'
 
-type Range = '1W' | '1M' | '3M'
+type Range = '1W' | '1M' | '3M' | 'Live'
 
-const RANGES: Range[] = ['1W', '1M', '3M']
+const RANGES: Range[] = ['1W', '1M', '3M', 'Live']
 
 // Module-level cache — survives navigation, resets on app restart
 const candleCache = new Map<string, CandleDto[]>()
@@ -26,14 +26,21 @@ export default function StockDetailScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: StockSymbol }>()
   const { width } = useWindowDimensions()
   const price = usePricesStore((s) => s.prices[symbol]?.price ?? null)
+  const ticks = usePricesStore((s) => s.tickBuffer[symbol] ?? [])
 
   const [range, setRange] = useState<Range>('1M')
   const [candles, setCandles] = useState<CandleDto[]>([])
   const [loading, setLoading] = useState(true)
 
   const companyName = SYMBOL_NAMES[symbol] ?? symbol
+  const isLive = range === 'Live'
 
   useEffect(() => {
+    if (isLive) {
+      setLoading(false)
+      return
+    }
+
     const cacheKey = `${symbol}_${range}`
     const cached = candleCache.get(cacheKey)
     if (cached) {
@@ -56,12 +63,14 @@ export default function StockDetailScreen() {
       .finally(() => setLoading(false))
   }, [symbol, range])
 
-  const closes = candles.map((c) => c.close)
-  const timestamps = candles.map((c) => c.time)
-  const firstClose = closes[0] ?? 0
-  const lastClose = closes[closes.length - 1] ?? 0
-  const changePercent = firstClose !== 0 ? ((lastClose - firstClose) / firstClose) * 100 : 0
-  const isPositive = changePercent >= 0
+  const chartData = isLive ? ticks : candles.map((c) => c.close)
+  const timestamps = isLive ? undefined : candles.map((c) => c.time)
+
+  const firstVal = chartData[0] ?? 0
+  const lastVal = chartData[chartData.length - 1] ?? 0
+  const isPositive = lastVal >= firstVal
+  const changePercent = firstVal !== 0 ? ((lastVal - firstVal) / firstVal) * 100 : 0
+  const chartColor = isPositive ? '#25F4EE' : '#FE2C55'
 
   return (
     <ScrollView className="flex-1 bg-rd-bg" contentContainerStyle={{ paddingBottom: 40 }}>
@@ -82,7 +91,8 @@ export default function StockDetailScreen() {
           {price !== null ? `$${price.toFixed(2)}` : '—'}
         </Text>
         <Text className={`text-sm font-semibold mt-1 ${isPositive ? 'text-rd-success' : 'text-rd-danger'}`}>
-          {isPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}% ({range})
+          {isPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+          {!isLive && ` (${range})`}
         </Text>
       </View>
 
@@ -94,7 +104,9 @@ export default function StockDetailScreen() {
             onPress={() => setRange(r)}
             className={`px-4 py-1.5 rounded-full ${range === r ? 'bg-rd-primary' : 'bg-rd-surface'}`}
           >
-            <Text className={`text-sm font-semibold ${range === r ? 'text-white' : 'text-rd-muted'}`}>{r}</Text>
+            <Text className={`text-sm font-semibold ${range === r ? 'text-white' : 'text-rd-muted'}`}>
+              {r}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -105,12 +117,24 @@ export default function StockDetailScreen() {
           <View style={{ height: 200 }} className="items-center justify-center">
             <ActivityIndicator color="#FE2C55" />
           </View>
-        ) : closes.length < 2 ? (
+        ) : isLive && ticks.length < 2 ? (
+          <View style={{ height: 200 }} className="items-center justify-center">
+            <Ionicons name="radio-outline" size={32} color="#2A2A2A" />
+            <Text className="text-rd-muted text-sm mt-3">Waiting for market data...</Text>
+            <Text className="text-rd-muted text-xs mt-1">Live during US market hours</Text>
+          </View>
+        ) : chartData.length < 2 ? (
           <View style={{ height: 200 }} className="items-center justify-center">
             <Text className="text-rd-muted text-sm">No data available</Text>
           </View>
         ) : (
-          <LineChart data={closes} timestamps={timestamps} width={width - 64} height={200} />
+          <LineChart
+            data={chartData}
+            timestamps={timestamps}
+            width={width - 64}
+            height={200}
+            color={chartColor}
+          />
         )}
       </View>
 
