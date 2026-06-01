@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+**/dist
+**/*.log
+apps/api/docker-compose.yml
+apps/mobile
+apps/api/data/migrations
+apps/api/tools
+.git
+.github

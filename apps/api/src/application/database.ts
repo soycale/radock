@@ -5,7 +5,9 @@ import type { DB } from '#data/db.js'
 
 export type AppDatabase = Kysely<DB>
 
-const pool = new pg.Pool({ connectionString: configuration.databaseUrl })
+const ssl = process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+
+const pool = new pg.Pool({ connectionString: configuration.databaseUrl, ssl })
 
 export const db = new Kysely<DB>({
   dialect: new PostgresDialect({ pool }),
