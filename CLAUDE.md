@@ -208,8 +208,8 @@ Update this file as tasks are completed.
 - [x] **1.5** Mobile: Login + auth store
 
 ### Phase 2 — API Core
-- [ ] **2.1** API: Alerts migration
-- [ ] **2.2** API: Alerts CRUD
+- [x] **2.1** API: Alerts migration
+- [x] **2.2** API: Alerts CRUD
 - [ ] **2.3** API: Finnhub WebSocket client
 - [ ] **2.4** API: Socket.IO broadcaster
 - [ ] **2.5** API: FCM alert notifications
