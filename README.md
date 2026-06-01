@@ -6,8 +6,11 @@ Radock is a full-stack mobile application for monitoring real-time stock prices 
 
 - **Live stock prices** — 10 major tech/consumer stocks update in real time via WebSocket
 - **Price alerts** — set a target price; receive a push notification the moment a stock crosses it
-- **Historical charts** — view 1W, 1M, or 3M price history for any stock
-- **Cross-platform** — iOS (Ad Hoc / TestFlight) and Android (direct APK install)
+- **Historical charts** — view 1W, 1M, or 3M price history for any stock with gradient fill and glow
+- **Live chart mode** — real-time price tick visualization during US market hours
+- **Alerts history** — view the last 10 triggered alerts with fired timestamps
+- **Auto session management** — expired Firebase tokens are refreshed automatically; failed refresh logs out
+- **Cross-platform** — iOS (TestFlight) and Android (direct APK install)
 
 ## Architecture
 
@@ -56,7 +59,7 @@ Radock is a full-stack mobile application for monitoring real-time stock prices 
 | **Zustand** | Minimal global state for auth and live prices; `expo-secure-store` for encrypted token persistence |
 | **Firebase JS SDK** | Email/password authentication via Firebase Auth |
 | **socket.io-client** | Connects to backend WebSocket, receives `price_update` events in real time |
-| **victory-native** | SVG-based line charts for historical price data; uses `react-native-svg` which is bundled in Expo |
+| **react-native-svg** | Custom SVG line chart — gradient area fill, glow layers, end-of-line dot, live tick mode |
 | **expo-notifications** | Unified push notification handler — FCM on Android, APNs on iOS |
 
 ### Monorepo Tooling
@@ -219,7 +222,7 @@ The API is deployed to [Railway](https://railway.app).
 | GET | `/quotes` | Public | Live quotes for all 10 symbols |
 | GET | `/candles/:symbol` | Public | Historical OHLCV (query: `resolution`, `from`, `to`) |
 | POST | `/alerts` | Bearer token | Create a price alert |
-| GET | `/alerts` | Bearer token | List your active alerts |
+| GET | `/alerts` | Bearer token | List active alerts. Add `?active=false` for triggered history (last 10) |
 | DELETE | `/alerts/:id` | Bearer token | Delete an alert |
 
 ## Development Notes
