@@ -202,10 +202,10 @@ Update this file as tasks are completed.
 
 ### Phase 1 — Foundation
 - [x] **1.1** Monorepo scaffold
-- [ ] **1.2** API: Koa server skeleton
-- [ ] **1.3** API: Firebase Auth middleware
-- [ ] **1.4** Mobile: Expo skeleton
-- [ ] **1.5** Mobile: Login + auth store
+- [x] **1.2** API: Koa server skeleton
+- [x] **1.3** API: Firebase Auth middleware
+- [x] **1.4** Mobile: Expo skeleton
+- [x] **1.5** Mobile: Login + auth store
 
 ### Phase 2 — API Core
 - [ ] **2.1** API: Alerts migration
