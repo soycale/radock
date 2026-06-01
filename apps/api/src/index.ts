@@ -4,6 +4,7 @@ import { db } from '#application/database.js'
 import { healthRouter } from '#modules/health/health.router.js'
 import { setupAlerts } from '#modules/alerts/alerts.setup.js'
 import { finnhubService } from '#services/finnhub.service.js'
+import { socketService } from '#services/socket.service.js'
 import pino from 'pino'
 
 const logger = pino({ transport: { target: 'pino-pretty' } })
@@ -18,7 +19,10 @@ app.use(alertsRouter.routes())
 app.use(alertsRouter.allowedMethods())
 
 finnhubService.connect()
+finnhubService.on('price', (event) => socketService.broadcastPrice(event))
 
-app.listen(configuration.port, () => {
+const httpServer = app.listen(configuration.port, () => {
   logger.info(`Server running on port ${configuration.port}`)
 })
+
+socketService.attach(httpServer)
