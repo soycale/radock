@@ -19,4 +19,6 @@ COPY apps/api/src ./apps/api/src
 
 ENV NODE_ENV=production
 EXPOSE 3000
-CMD ["node", "--import", "tsx/esm", "apps/api/src/index.ts"]
+# Run from the api package dir so Node finds tsx in apps/api/node_modules
+WORKDIR /app/apps/api
+CMD ["node", "--import", "tsx/esm", "src/index.ts"]
