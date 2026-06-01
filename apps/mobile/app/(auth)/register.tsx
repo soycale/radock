@@ -3,22 +3,30 @@ import { View, Text, KeyboardAvoidingView, Platform, TouchableOpacity } from 're
 import { router } from 'expo-router'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthStore } from '@/stores/auth.store'
 
-export default function LoginScreen() {
-  const { login } = useAuth()
+export default function RegisterScreen() {
+  const register = useAuthStore((s) => s.register)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleLogin() {
+  async function handleRegister() {
     setError(null)
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
     setLoading(true)
     try {
-      await login(email, password)
-    } catch {
-      setError('Invalid email or password. Please try again.')
+      await register(email, password)
+    } catch (e: any) {
+      if (e?.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists.')
+      } else {
+        setError('Could not create account. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -32,7 +40,7 @@ export default function LoginScreen() {
       <View className="flex-1 justify-center px-6 gap-y-8">
         <View className="gap-y-1">
           <Text className="text-rd-text text-4xl font-bold tracking-tight">Radock</Text>
-          <Text className="text-rd-muted text-base">Sign in to your account</Text>
+          <Text className="text-rd-muted text-base">Create your account</Text>
         </View>
 
         <View className="gap-y-4">
@@ -47,7 +55,7 @@ export default function LoginScreen() {
             label="Password"
             value={password}
             onChangeText={setPassword}
-            placeholder="••••••••"
+            placeholder="Min. 6 characters"
             secureTextEntry
           />
           {error && (
@@ -56,11 +64,11 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-y-4">
-          <Button label="Sign In" onPress={handleLogin} loading={loading} fullWidth />
-          <TouchableOpacity onPress={() => router.push('/(auth)/register')} className="items-center">
+          <Button label="Create Account" onPress={handleRegister} loading={loading} fullWidth />
+          <TouchableOpacity onPress={() => router.back()} className="items-center">
             <Text className="text-rd-muted text-sm">
-              Don't have an account?{' '}
-              <Text className="text-rd-primary font-semibold">Sign up</Text>
+              Already have an account?{' '}
+              <Text className="text-rd-primary font-semibold">Sign in</Text>
             </Text>
           </TouchableOpacity>
         </View>
