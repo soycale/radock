@@ -7,7 +7,8 @@ const MAX_TICKS = 60
 interface PricesState {
   prices: Record<StockSymbol, PriceUpdateEvent | null>
   tickBuffer: Record<StockSymbol, number[]>
-  setPrice: (event: PriceUpdateEvent) => void
+  setPrice: (event: PriceUpdateEvent) => void   // Socket.IO ticks — updates prices + tickBuffer
+  seedPrice: (event: PriceUpdateEvent) => void  // REST seed — updates prices only, not tickBuffer
 }
 
 const initialPrices = Object.fromEntries(
@@ -32,4 +33,8 @@ export const usePricesStore = create<PricesState>((set) => ({
         },
       }
     }),
+  seedPrice: (event) =>
+    set((state) => ({
+      prices: { ...state.prices, [event.symbol]: event },
+    })),
 }))

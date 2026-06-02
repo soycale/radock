@@ -10,7 +10,7 @@ import { StockCard } from '@/components/ui/StockCard'
 export default function MarketsScreen() {
   const [quotes, setQuotes] = useState<Record<string, StockQuoteDto>>({})
   const [loading, setLoading] = useState(true)
-  const setPrice = usePricesStore((s) => s.setPrice)
+  const seedPrice = usePricesStore((s) => s.seedPrice)
 
   useEffect(() => {
     api.get<ApiResponse<StockQuoteDto[]>>('/quotes')
@@ -19,7 +19,7 @@ export default function MarketsScreen() {
         for (const q of res.data) {
           map[q.symbol] = q
           // Seed the prices store with initial REST data so cards show price immediately
-          setPrice({ symbol: q.symbol as StockSymbol, price: q.price, timestamp: Date.now() })
+          seedPrice({ symbol: q.symbol as StockSymbol, price: q.price, timestamp: Date.now() })
         }
         setQuotes(map)
       })
