@@ -92,14 +92,70 @@ More coming soon in a future release.
 ```
 radock/
 ├── apps/
-│   ├── api/        → Node.js backend (Koa + Socket.IO)
-│   └── mobile/     → React Native app (Expo)
+│   ├── api/
+│   │   ├── src/
+│   │   │   ├── application/       → Server bootstrap, DB (Kysely), Firebase Admin init
+│   │   │   ├── middleware/        → Auth (Firebase token verification), error handler
+│   │   │   ├── modules/
+│   │   │   │   ├── alerts/        → CRUD: repository, service, Zod schemas, router
+│   │   │   │   ├── quotes/        → GET /quotes and GET /candles endpoints
+│   │   │   │   └── health/        → GET /health
+│   │   │   ├── services/
+│   │   │   │   ├── finnhub.service.ts       → Finnhub WebSocket client + reconnect logic
+│   │   │   │   ├── socket.service.ts        → Socket.IO server, token auth, broadcaster
+│   │   │   │   └── alert-evaluator.service.ts → Price threshold checker + FCM sender
+│   │   │   └── shared/errors.ts   → Typed HTTP errors (400/401/403/404/409)
+│   │   ├── data/
+│   │   │   ├── db.ts              → Auto-generated Kysely types (kysely-codegen)
+│   │   │   └── migrations/        → SQL up/down migration files (golang-migrate)
+│   │   └── tools/migrate/         → Migration CLI wrapper
+│   └── mobile/
+│       ├── app/
+│       │   ├── _layout.tsx        → Root layout: auth guard, FCM permission, font load
+│       │   ├── (auth)/login.tsx   → Firebase email/password login
+│       │   └── (app)/
+│       │       ├── _layout.tsx    → Tab navigator + Socket.IO connection setup
+│       │       ├── (tabs)/
+│       │       │   ├── index.tsx      → Markets screen: stock list, REST seed + live prices
+│       │       │   └── alerts/
+│       │       │       ├── index.tsx  → Alerts screen: open/history toggle, delete
+│       │       │       └── new.tsx    → Create alert form: symbol picker + target price
+│       │       └── stock/[symbol].tsx → Stock detail: live price, chart, range picker
+│       └── src/
+│           ├── api/client.ts      → Fetch wrapper with Bearer auth + 401 auto-logout
+│           ├── stores/
+│           │   ├── auth.store.ts  → Firebase auth state + SecureStore persistence
+│           │   └── prices.store.ts → Live prices + tick buffer (last 60 ticks per symbol)
+│           ├── hooks/
+│           │   └── useSocket.ts   → Socket.IO connection, feeds prices store
+│           └── components/ui/
+│               ├── LineChart.tsx  → Custom SVG chart: gradient fill, glow, end dot
+│               ├── StockCard.tsx  → Memoized card with per-symbol price selector
+│               ├── AlertRow.tsx   → Alert list row (active + history variants)
+│               ├── Button.tsx     → Primary/secondary button with loading state
+│               └── Input.tsx      → Labeled input with error display
 ├── packages/
-│   └── types/      → Shared TypeScript types and constants
+│   └── types/src/index.ts  → Shared DTOs, constants, event types (StockSymbol, AlertDto…)
 ├── turbo.json
-├── pnpm-workspace.yaml
-└── README.md
+└── pnpm-workspace.yaml
 ```
+
+## Key Technical Decisions
+
+**Per-symbol Zustand selectors in `StockCard`**
+Each card subscribes only to its own symbol's slice: `usePricesStore(s => s.prices[symbol])`. This means a Socket.IO tick for AAPL triggers a re-render only in the AAPL card — not in all 10.
+
+**`seedPrice` vs `setPrice` in the prices store**
+The REST `/quotes` response seeds initial prices via `seedPrice`, which updates `prices` but not `tickBuffer`. `setPrice` (Socket.IO ticks) updates both. This keeps the Live chart's tick buffer clean — only real-time WebSocket data appears in it, not the initial REST snapshot.
+
+**Module-level candle cache**
+Historical candle data is cached in a `Map<string, CandleDto[]>` at the module level (survives navigation, reset on app restart). Empty arrays are never cached so a failed fetch can always be retried on pull-to-refresh.
+
+**Silent 401 auto-logout**
+The API client calls `setOnUnauthorized(cb)` to register the logout action without a circular import. On a 401 that cannot be recovered, it calls the callback then returns a never-resolving `Promise` — preventing the caller's `.catch(console.error)` from firing and eliminating noisy error logs.
+
+**Finnhub → Yahoo Finance fallback on the API**
+`GET /candles` tries Finnhub first; if the response is non-JSON or an error (common on cloud IPs), it falls back to Yahoo Finance. Both are wrapped in `try/catch` and return `null` on failure, so a bad response never produces a 500.
 
 ## Prerequisites
 
